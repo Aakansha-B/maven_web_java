@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,87 +8,111 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 20px;
+            margin-top: 50px;
         }
         .calculator {
             display: inline-block;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            background: #f9f9f9;
-        }
-        input, select, button {
-            margin: 10px 0;
             padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        input[type="text"] {
+            width: 100%;
+            height: 40px;
+            margin-bottom: 10px;
+            text-align: right;
             font-size: 16px;
         }
-        .result {
-            margin-top: 20px;
-            font-size: 20px;
-            color: #333;
+        button {
+            width: 23%;
+            height: 40px;
+            margin: 1%;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .operator {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .clear {
+            background-color: #f44336;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <h1>Simple Calculator</h1>
     <div class="calculator">
-        <label for="num1">Number 1:</label>
-        <input type="number" id="num1" placeholder="Enter first number"><br>
-
-        <label for="num2">Number 2:</label>
-        <input type="number" id="num2" placeholder="Enter second number"><br>
-
-        <label for="operation">Operation:</label>
-        <select id="operation">
-            <option value="add">Add</option>
-            <option value="subtract">Subtract</option>
-            <option value="multiply">Multiply</option>
-            <option value="divide">Divide</option>
-        </select><br>
-
-        <button onclick="calculate()">Calculate</button>
-
-        <div class="result" id="result"></div>
+        <input type="text" id="result" readonly />
+        <br>
+        <button onclick="appendNumber('7')">7</button>
+        <button onclick="appendNumber('8')">8</button>
+        <button onclick="appendNumber('9')">9</button>
+        <button class="operator" onclick="setOperator('+')">+</button>
+        <br>
+        <button onclick="appendNumber('4')">4</button>
+        <button onclick="appendNumber('5')">5</button>
+        <button onclick="appendNumber('6')">6</button>
+        <button class="operator" onclick="setOperator('-')">-</button>
+        <br>
+        <button onclick="appendNumber('1')">1</button>
+        <button onclick="appendNumber('2')">2</button>
+        <button onclick="appendNumber('3')">3</button>
+        <button class="operator" onclick="setOperator('')"></button>
+        <br>
+        <button onclick="appendNumber('0')">0</button>
+        <button onclick="appendNumber('.')">.</button>
+        <button class="clear" onclick="clearResult()">C</button>
+        <button class="operator" onclick="setOperator('/')">/</button>
+        <br>
+        <button style="width: 98%;" onclick="calculateResult()">=</button>
     </div>
 
     <script>
-        function calculate() {
-            const num1 = parseFloat(document.getElementById("num1").value);
-            const num2 = parseFloat(document.getElementById("num2").value);
-            const operation = document.getElementById("operation").value;
-            const resultElement = document.getElementById("result");
+        let equation = ''; // Store the full equation for display
+        let operator = ''; // Store the current operator
+        let currentInput = ''; // Current number input
 
-            if (isNaN(num1) || isNaN(num2)) {
-                resultElement.textContent = "Please enter valid numbers.";
-                return;
+        function appendNumber(number) {
+            currentInput += number; // Add digit to current number
+            equation += number; // Add digit to the equation
+            updateDisplay(equation);
+        }
+
+        function setOperator(op) {
+            if (currentInput === '' && equation === '') return; // Prevent operator without numbers
+            if (currentInput === '' && equation.slice(-1).match(/[\+\-\*\/]/)) {
+                // Replace the last operator if clicked twice
+                equation = equation.slice(0, -1) + op;
+            } else {
+                operator = op;
+                equation += op; // Add operator to the equation
+                currentInput = ''; // Reset current input for next number
             }
+            updateDisplay(equation);
+        }
 
-            let result;
-            switch (operation) {
-                case "add":
-                    result = num1 + num2;
-                    break;
-                case "subtract":
-                    result = num1 - num2;
-                    break;
-                case "multiply":
-                    result = num1 * num2;
-                    break;
-                case "divide":
-                    if (num2 === 0) {
-                        resultElement.textContent = "Cannot divide by zero.";
-                        return;
-                    }
-                    result = num1 / num2;
-                    break;
-                default:
-                    resultElement.textContent = "Invalid operation.";
-                    return;
+        function calculateResult() {
+            if (equation === '' || equation.slice(-1).match(/[\+\-\*\/]/)) return; // Prevent invalid equation
+            try {
+                const result = eval(equation); // Evaluate the equation
+                updateDisplay(result);
+                equation = result.toString(); // Set result as the next starting point
+                currentInput = '';
+            } catch (e) {
+                updateDisplay('Error');
             }
+        }
 
-            resultElement.textContent = Result: ${result};
+        function clearResult() {
+            equation = '';
+            currentInput = '';
+            operator = '';
+            updateDisplay('');
+        }
+
+        function updateDisplay(value) {
+            document.getElementById('result').value = value;
         }
     </script>
 </body>
